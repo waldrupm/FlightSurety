@@ -175,7 +175,7 @@ contract FlightSuretyData {
     }
 
     function clearAirlineVotes(address _airline) external  requireIsOperational requireAuthorizedCaller {
-        airlineVotes[_airline] = [];
+        delete airlineVotes[_airline];
     }
 
    /**

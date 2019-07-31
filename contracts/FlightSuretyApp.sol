@@ -135,7 +135,7 @@ contract FlightSuretyApp {
         // Use consensus
         if (numRegisteredAirlines >= CONSENSUS_NUM) {
             // Check if sender has already voted for airline
-            address[] votes = flightSuretyData.getAirlineVotes();
+            address[] memory votes = flightSuretyData.getAirlineVotes(_newAirline);
             bool alreadyVoted = false;
             for (uint v = 0; v < votes.length; v++) {
                 if (votes[v] == msg.sender) {
@@ -153,7 +153,7 @@ contract FlightSuretyApp {
                 flightSuretyData.registerAirline(_newAirline);
                 emit AirlineRegistered(_newAirline);
             } else {
-                emit AirlineVotedfor(_newAirline);
+                emit AirlineVotedFor(_newAirline);
             }
             
         } else {
