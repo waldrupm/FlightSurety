@@ -27,6 +27,8 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
+    uint8 private constant CONSENSUS_NUM = 4;
+
     address private contractOwner;          // Account used to deploy contract
 
     struct Flight {
@@ -36,6 +38,13 @@ contract FlightSuretyApp {
         address airline;
     }
     mapping(bytes32 => Flight) private flights;
+
+
+    /**************************************************************************
+    EVENTS
+    ***************************************************************************/
+    event AirlineVotedFor(address airline);
+    event AirlineRegistered(address airline);
 
  
     /********************************************************************************************/
@@ -118,13 +127,40 @@ contract FlightSuretyApp {
                             public
                             requireIsOperational
                             requireAirlineRegAndFunded
-                            returns(bool success, uint256 votes)
     {
         require(!flightSuretyData.isAirline(_newAirline), "Airline has already been registered");
         
-        uint256 memory numRegisteredAirlines = flightSuretyData.numRegisteredAirlines();
+        uint256 numRegisteredAirlines = flightSuretyData.numRegisteredAirlines();
 
-        
+        // Use consensus
+        if (numRegisteredAirlines >= CONSENSUS_NUM) {
+            // Check if sender has already voted for airline
+            address[] votes = flightSuretyData.getAirlineVotes();
+            bool alreadyVoted = false;
+            for (uint v = 0; v < votes.length; v++) {
+                if (votes[v] == msg.sender) {
+                    alreadyVoted = true;
+                    break;
+                }
+            }
+            require(!alreadyVoted, "You have already voted for that airline.");
+
+            // if not add a vote for it
+            flightSuretyData.addAirlineVote(msg.sender, _newAirline);
+            // check for approval conditions
+            if (votes.length > numRegisteredAirlines.div(2)) {
+                flightSuretyData.clearAirlineVotes(_newAirline);
+                flightSuretyData.registerAirline(_newAirline);
+                emit AirlineRegistered(_newAirline);
+            } else {
+                emit AirlineVotedfor(_newAirline);
+            }
+            
+        } else {
+            flightSuretyData.registerAirline(_newAirline);
+            emit AirlineRegistered(_newAirline);
+        }
+
     }
 
 
