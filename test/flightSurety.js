@@ -90,6 +90,14 @@ contract('Flight Surety Tests', async (accounts) => {
 
   });
 
+  it('(airline) can send funding and have it reflected in fund balance', async () => {
+
+  });
+
+  it('(airline) can participate in contract after funding itself', async () => {
+
+  });
+
   it('Single (airline) can only add others by itself prior to 4 airlines registered', async () => {
 
   });

@@ -24,8 +24,12 @@ contract FlightSuretyData {
         bool isRegistered;
     }
 
+    mapping(address => address[]) airlineVotes;
+
+
     address[] private registeredAirlines;
     mapping(address => Airline) airlines;
+
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -158,6 +162,21 @@ contract FlightSuretyData {
         return airlines[_airlineAddress].funds >= minAirlineFunding;
     }
 
+    function numRegisteredAirlines() public view requireIsOperational returns (uint256) {
+        return registeredAirlines.length;
+    }
+
+    function addAirlineVote(address _voter, address _airline) external requireIsOperational requireAuthorizedCaller {
+        airlineVotes[_airline].push(_voter);
+    }
+
+    function getAirlineVotes(address _airline) public view requireIsOperational requireAuthorizedCaller returns (address[]) {
+        return airlineVotes[_airline];
+    }
+
+    function clearAirlineVotes(address _airline) external  requireIsOperational requireAuthorizedCaller {
+        airlineVotes[_airline] = [];
+    }
 
    /**
     * @dev Buy insurance for a flight

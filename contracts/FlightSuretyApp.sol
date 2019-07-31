@@ -120,8 +120,11 @@ contract FlightSuretyApp {
                             requireAirlineRegAndFunded
                             returns(bool success, uint256 votes)
     {
-        success = true;
-        votes = 4;
+        require(!flightSuretyData.isAirline(_newAirline), "Airline has already been registered");
+        
+        uint256 memory numRegisteredAirlines = flightSuretyData.numRegisteredAirlines();
+
+        
     }
 
 
