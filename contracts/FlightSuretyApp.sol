@@ -43,7 +43,7 @@ contract FlightSuretyApp {
     /**************************************************************************
     EVENTS
     ***************************************************************************/
-    event AirlineVotedFor(address airline);
+    event AirlineVotedFor(address votedFor, address airlineVoted);
     event AirlineRegistered(address airline);
 
  
@@ -153,7 +153,7 @@ contract FlightSuretyApp {
                 flightSuretyData.registerAirline(_newAirline);
                 emit AirlineRegistered(_newAirline);
             } else {
-                emit AirlineVotedFor(_newAirline);
+                emit AirlineVotedFor(_newAirline, msg.sender);
             }
             
         } else {
