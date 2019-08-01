@@ -172,7 +172,7 @@ contract FlightSuretyData {
         airlineVotes[_airline].push(_voter);
     }
 
-    function getAirlineVotes(address _airline) public view requireIsOperational requireAuthorizedCaller returns (address[]) {
+    function getAirlineVotes(address _airline) public view requireIsOperational returns (address[]) {
         return airlineVotes[_airline];
     }
 

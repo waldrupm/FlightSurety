@@ -27,7 +27,7 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
-    uint8 private constant CONSENSUS_NUM = 4;
+    uint256 private constant CONSENSUS_NUM = 4;
 
     address private contractOwner;          // Account used to deploy contract
 
@@ -46,6 +46,9 @@ contract FlightSuretyApp {
     event AirlineVotedFor(address votedFor, address airlineVoted);
     event AirlineRegistered(address airline);
     event AirlineFunded(address airline);
+
+    //debugging
+    // event InVoting(uint256 votesNumber);
 
  
     /********************************************************************************************/
@@ -132,9 +135,9 @@ contract FlightSuretyApp {
         require(!flightSuretyData.isAirline(_newAirline), "Airline has already been registered");
         
         uint256 numRegisteredAirlines = flightSuretyData.numRegisteredAirlines();
-
         // Use consensus
         if (numRegisteredAirlines >= CONSENSUS_NUM) {
+            
             // Check if sender has already voted for airline
             address[] memory votes = flightSuretyData.getAirlineVotes(_newAirline);
             bool alreadyVoted = false;
@@ -148,6 +151,7 @@ contract FlightSuretyApp {
 
             // if not add a vote for it
             flightSuretyData.addAirlineVote(msg.sender, _newAirline);
+            votes = flightSuretyData.getAirlineVotes(_newAirline);
             // check for approval conditions
             if (votes.length > numRegisteredAirlines.div(2)) {
                 flightSuretyData.clearAirlineVotes(_newAirline);

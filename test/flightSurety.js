@@ -59,7 +59,7 @@ contract('Flight Surety Tests', async (accounts) => {
       let reverted = false;
       try 
       {
-          await config.flightSuretyApp.registerAirline(accounts[2]);
+          await config.flightSuretyApp.registerAirline(config.secondAirline);
       }
       catch(e) {
           reverted = true;
@@ -74,16 +74,15 @@ contract('Flight Surety Tests', async (accounts) => {
   it('(airline) cannot register an Airline using registerAirline() if it is not funded', async () => {
     
     // ARRANGE
-    let newAirline = accounts[2];
 
     // ACT
     try {
-        await config.flightSuretyApp.registerAirline(newAirline, {from: config.firstAirline});
+        await config.flightSuretyApp.registerAirline(config.secondAirline, {from: config.firstAirline});
     }
     catch(e) {
-        //console.log(e);
+        // console.log(e);
     }
-    let result = await config.flightSuretyData.isAirline.call(newAirline); 
+    let result = await config.flightSuretyData.isAirline.call(config.secondAirline); 
 
     // ASSERT
     assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
@@ -104,25 +103,56 @@ contract('Flight Surety Tests', async (accounts) => {
 
   it('(airline) can participate in contract after funding itself', async () => {
     let reverted = false;
-
+    
     try {
-        await config.flightSuretyApp.registerAirline(accounts[3], {from: config.firstAirline});
+        await config.flightSuretyApp.registerAirline(config.secondAirline, {from: config.firstAirline});
     } catch(e) {
         reverted = true;
+        console.log(e);
     }
 
-    let newAirlineRegistered = await config.flightSuretyData.isAirline(accounts[3])
+    let newAirlineRegistered = await config.flightSuretyData.isAirline(config.secondAirline)
 
     assert.equal(newAirlineRegistered, true, "Airline meeting requirements cannot register new airlines");
     assert.equal(reverted, false, "Funded airline that should be able to, cannot participate in contract actions");
   });
 
   it('Single (airline) can only add others by itself prior to 4 airlines registered', async () => {
+    let thirdAirline = await config.flightSuretyApp.registerAirline(config.thirdAirline, {from: config.firstAirline});
+    let fourthAirline = await config.flightSuretyApp.registerAirline(config.fourthAirline, {from: config.firstAirline});
+
+    try {
+        await config.flightSuretyApp.registerAirline(config.fifthAirline, {from: config.firstAirline});
+    } catch(e) {
+        console.log(e);
+    }
+    let airlineVotes = await config.flightSuretyData.getAirlineVotes(config.fifthAirline);
+    let airlineRegistered = await config.flightSuretyData.isAirline(config.fifthAirline);
+
+    assert.equal(airlineRegistered, false, "Airline registered automatically when votes are required");
+    assert(airlineVotes.length > 0, "Airline Vote not counted");
 
   });
 
   it('Fifth and further (airline) registration required 50% of multiparty consensus', async () => {
+    //fund 2 more airlines
+    let ten_eth = web3.utils.toWei("10", "ether");
+    await config.flightSuretyApp.fundRegisteredAirline({from: config.secondAirline, value: ten_eth});
+    await config.flightSuretyApp.fundRegisteredAirline({from: config.thirdAirline, value: ten_eth});
 
+    // have them vote for fifthAirline
+    try {
+        await config.flightSuretyApp.registerAirline(config.fifthAirline, {from: config.secondAirline});
+        await config.flightSuretyApp.registerAirline(config.fifthAirline, {from: config.thirdAirline});
+    } catch(e) {
+        console.log(e);
+    }
+    // ensure fifthAirline is registered and airlinevotes cleared
+    let fifthRegistered = await config.flightSuretyData.isAirline(config.fifthAirline);
+    let fifthVotes = await config.flightSuretyData.getAirlineVotes(config.fifthAirline);
+    
+    assert.equal(fifthRegistered, true, "Fifth airline not registered with majority vote.");
+    assert(fifthVotes.length == 0, "Fifth votes not reset after getting majority vote");
   });
 
 
