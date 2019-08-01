@@ -45,6 +45,7 @@ contract FlightSuretyApp {
     ***************************************************************************/
     event AirlineVotedFor(address votedFor, address airlineVoted);
     event AirlineRegistered(address airline);
+    event AirlineFunded(address airline);
 
  
     /********************************************************************************************/
@@ -161,6 +162,12 @@ contract FlightSuretyApp {
             emit AirlineRegistered(_newAirline);
         }
 
+    }
+
+    // Fund an airline
+    function fundRegisteredAirline () public payable requireIsOperational {
+        flightSuretyData.fundAirline.value(msg.value)(msg.sender, msg.value);
+        emit AirlineFunded(msg.sender);
     }
 
 

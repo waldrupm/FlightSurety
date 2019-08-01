@@ -91,11 +91,30 @@ contract('Flight Surety Tests', async (accounts) => {
   });
 
   it('(airline) can send funding and have it reflected in fund balance', async () => {
+      let ten_eth = web3.utils.toWei("10", "ether");
+    try {
+        await config.flightSuretyApp.fundRegisteredAirline({from: config.firstAirline, value: ten_eth});
+    } catch(e) {
+        console.log(e);
+    }
+    let result = await config.flightSuretyData.isFundedAirline(config.firstAirline);
 
+    assert.equal(result, true, "Airline is not showing as funded after sending 10 ether");
   });
 
   it('(airline) can participate in contract after funding itself', async () => {
+    let reverted = false;
 
+    try {
+        await config.flightSuretyApp.registerAirline(accounts[3], {from: config.firstAirline});
+    } catch(e) {
+        reverted = true;
+    }
+
+    let newAirlineRegistered = await config.flightSuretyData.isAirline(accounts[3])
+
+    assert.equal(newAirlineRegistered, true, "Airline meeting requirements cannot register new airlines");
+    assert.equal(reverted, false, "Funded airline that should be able to, cannot participate in contract actions");
   });
 
   it('Single (airline) can only add others by itself prior to 4 airlines registered', async () => {
@@ -106,9 +125,5 @@ contract('Flight Surety Tests', async (accounts) => {
 
   });
 
-  it('Airline can participate in contract actions only after funding 10 ether', async () => {
-
-  });
- 
 
 });

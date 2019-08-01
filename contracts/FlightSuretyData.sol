@@ -14,6 +14,8 @@ contract FlightSuretyData {
 
     // Minimum funds for airline
     uint256 constant minAirlineFunding = 10 ether;
+    // Track contract balance
+    uint256 private contractFundBalance = 0 ether;
 
     // Used to check external authorized callers
     mapping(address => uint8) private authorizedCallers;
@@ -178,6 +180,11 @@ contract FlightSuretyData {
         delete airlineVotes[_airline];
     }
 
+    function fundAirline(address _airline, uint256 _funds) external payable requireAuthorizedCaller requireIsOperational {
+        airlines[_airline].funds = airlines[_airline].funds.add(_funds);
+        contractFundBalance = contractFundBalance.add(_funds);
+    }
+
    /**
     * @dev Buy insurance for a flight
     *
@@ -215,18 +222,6 @@ contract FlightSuretyData {
     {
     }
 
-   /**
-    * @dev Initial funding for the insurance. Unless there are too many delayed flights
-    *      resulting in insurance payouts, the contract should be self-sustaining
-    *
-    */   
-    function fund
-                            (   
-                            )
-                            public
-                            payable
-    {
-    }
 
     function getFlightKey
                         (
@@ -239,6 +234,15 @@ contract FlightSuretyData {
                         returns(bytes32) 
     {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
+    }
+
+    function fund
+                            (   
+                            )
+                            public
+                            payable
+    {
+        contractFundBalance.add(msg.value);
     }
 
     /**
