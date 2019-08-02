@@ -5,6 +5,12 @@ var BigNumber = require('bignumber.js');
 contract('Flight Surety Tests', async (accounts) => {
 
   var config;
+
+    // vars not using config
+  let flightOneName = web3.utils.utf8ToHex("Mike101");
+  let flightTwoName = web3.utils.utf8ToHex("Mike102");
+  let flightThreeName = web3.utils.utf8ToHex("Mike103");
+
   before('setup contract', async () => {
     config = await Test.Config(accounts);
     await config.flightSuretyData.authorizeCaller(config.flightSuretyApp.address);
@@ -155,6 +161,32 @@ contract('Flight Surety Tests', async (accounts) => {
     assert(fifthVotes.length == 0, "Fifth votes not reset after getting majority vote");
   });
 
-  
+  it('(airline) can register a flight', async () => {
+    let flightExistsBefore = await config.flightSuretyData.checkFlightExists(flightOneName);
+    assert.equal(flightExistsBefore, false, "Flight already exists when shouldn't");
 
-}
+    try {
+        await config.flightSuretyApp.registerFlight(config.firstAirline, 1564765898826, flightOneName, {from: config.firstAirline});
+    } catch(e) {
+        console.log(e);
+    }
+    flightExistsAfter = await config.flightSuretyData.checkFlightExists(flightOneName);
+    assert.equal(flightExistsAfter, true, "Flight should exist now but does not");
+    
+});
+
+it('Can list all flights', async () => {
+    let flightList;
+
+    try {
+        await config.flightSuretyApp.registerFlight(config.firstAirline, 1564445428826, flightTwoName, {from: config.firstAirline});
+        await config.flightSuretyApp.registerFlight(config.firstAirline, 1475937583736, flightThreeName, {from: config.firstAirline});
+        flightList = await config.flightSuretyData.getAllFlights();
+    } catch(e) {
+        console.log(e);
+    }
+    
+    assert.equal(flightList.length, 3, "Flight list is not 3 as expected");
+  });
+
+});

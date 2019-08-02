@@ -32,6 +32,19 @@ contract FlightSuretyData {
     address[] private registeredAirlines;
     mapping(address => Airline) airlines;
 
+    // Flights Data and Structures
+    struct Flight {
+        bytes32 flight;
+        bool isRegistered;
+        uint8 statusCode;
+        uint256 updatedTimestamp;
+        address airline;
+    }
+    mapping(bytes32 => Flight) private flights;
+    bytes32[] private flightKeys;
+
+    
+
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -185,6 +198,38 @@ contract FlightSuretyData {
         contractFundBalance = contractFundBalance.add(_funds);
     }
 
+
+    /* FLIGHTS FUNCTIONALITY */
+    function registerFlight (address _airline, uint256 _time, bytes32 _flight) external requireAuthorizedCaller requireIsOperational {
+        bytes32 flightKey = getFlightKey(_airline, _flight, _time);
+        flightKeys.push(flightKey);
+        flights[flightKey] = Flight({
+                                    flight: _flight,
+                                    isRegistered: true,
+                                    statusCode: 0,
+                                    updatedTimestamp: _time,
+                                    airline: _airline
+                                    });
+    }
+
+    function checkFlightExists (bytes32 _flightNumber) public view requireIsOperational returns (bool) {
+        for(uint16 f = 0; f < flightKeys.length; f++) {
+            if(flights[flightKeys[f]].flight == _flightNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function getAllFlights () public view requireIsOperational returns (bytes32[] memory) {
+        bytes32[] memory flightList = new bytes32[](flightKeys.length);
+
+        for (uint f = 0; f < flightKeys.length; f++) {
+            flightList[f] = flights[flightKeys[f]].flight;
+        }
+        return flightList;
+    }
+
    /**
     * @dev Buy insurance for a flight
     *
@@ -226,7 +271,7 @@ contract FlightSuretyData {
     function getFlightKey
                         (
                             address airline,
-                            string memory flight,
+                            bytes32 flight,
                             uint256 timestamp
                         )
                         pure

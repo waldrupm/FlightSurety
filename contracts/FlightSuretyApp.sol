@@ -31,15 +31,6 @@ contract FlightSuretyApp {
 
     address private contractOwner;          // Account used to deploy contract
 
-    struct Flight {
-        string flight;
-        bool isRegistered;
-        uint8 statusCode;
-        uint256 updatedTimestamp;
-        address airline;
-    }
-    mapping(bytes32 => Flight) private flights;
-
 
     /**************************************************************************
     EVENTS
@@ -47,6 +38,8 @@ contract FlightSuretyApp {
     event AirlineVotedFor(address votedFor, address airlineVoted);
     event AirlineRegistered(address airline);
     event AirlineFunded(address airline);
+
+    event FlightRegistered(bytes32 flight);
 
     //debugging
     // event InVoting(uint256 votesNumber);
@@ -127,7 +120,8 @@ contract FlightSuretyApp {
     *
     */   
     function registerAirline
-                            (   address _newAirline
+                            (   
+                                address _newAirline
                             )
                             public
                             requireIsOperational
@@ -180,12 +174,13 @@ contract FlightSuretyApp {
     * @dev Register a future flight for insuring.
     *
     */  
-    function registerFlight ( address _airline, uint256 _time, string _flight) public requireIsOperational requireAirlineRegAndFunded {
-        bytes32 flightKey = getFlightKey(_airline, _flight, _time);
+    // Frontend should pass _flight as web3.fromUtf8(_flight)
+    function registerFlight ( address _airline, uint256 _time, bytes32 _flight) public requireIsOperational requireAirlineRegAndFunded {
+        bool flightExists = flightSuretyData.checkFlightExists(_flight);
+        require(flightExists == false, "Flight already exists.");
 
-        require(flights[flightKey].isRegistered == false, "That flight is registered already");
-        flights[flightKey] = Flight({flight: _flight, isRegistered: true, updatedTimestamp: _time, airline: _airline, statusCode: STATUS_CODE_UNKNOWN});
-
+        flightSuretyData.registerFlight(_airline, _time, _flight);
+        emit FlightRegistered(_flight);
     }
     
    /**
