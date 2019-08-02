@@ -80,6 +80,12 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireNewFlight(bytes32 flightNumber) {
+        bool flightExists = flightSuretyData.checkFlightExists(flightNumber);
+        require(flightExists == false, "Flight already exists.");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -175,10 +181,8 @@ contract FlightSuretyApp {
     *
     */  
     // Frontend should pass _flight as web3.fromUtf8(_flight)
-    function registerFlight ( address _airline, uint256 _time, bytes32 _flight) public requireIsOperational requireAirlineRegAndFunded {
-        bool flightExists = flightSuretyData.checkFlightExists(_flight);
-        require(flightExists == false, "Flight already exists.");
-
+    function registerFlight ( address _airline, uint256 _time, bytes32 _flight) public requireIsOperational requireAirlineRegAndFunded requireNewFlight(_flight) {
+        
         flightSuretyData.registerFlight(_airline, _time, _flight);
         emit FlightRegistered(_flight);
     }
