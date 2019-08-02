@@ -32,6 +32,7 @@ contract FlightSuretyApp {
     address private contractOwner;          // Account used to deploy contract
 
     struct Flight {
+        string flight;
         bool isRegistered;
         uint8 statusCode;
         uint256 updatedTimestamp;
@@ -179,12 +180,11 @@ contract FlightSuretyApp {
     * @dev Register a future flight for insuring.
     *
     */  
-    function registerFlight
-                                (
-                                )
-                                external
-                                pure
-    {
+    function registerFlight ( address _airline, uint256 _time, string _flight) public requireIsOperational requireAirlineRegAndFunded {
+        bytes32 flightKey = getFlightKey(_airline, _flight, _time);
+
+        require(flights[flightKey].isRegistered == false, "That flight is registered already");
+        flights[flightKey] = Flight({flight: _flight, isRegistered: true, updatedTimestamp: _time, airline: _airline, statusCode: STATUS_CODE_UNKNOWN});
 
     }
     
