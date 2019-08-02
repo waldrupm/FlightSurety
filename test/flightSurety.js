@@ -155,5 +155,6 @@ contract('Flight Surety Tests', async (accounts) => {
     assert(fifthVotes.length == 0, "Fifth votes not reset after getting majority vote");
   });
 
+  
 
-});
+}
