@@ -49,8 +49,8 @@ contract FlightSuretyData {
         uint256 funds;
         bool isPaid;
     }
-    // Flights to insurances
-    mapping(bytes32 => Insurance[]) private flightInsurances;
+    // Flightkeys to insurances
+    mapping(bytes32 => bytes32[]) private flightInsurances;
     // Insuree to balances
     mapping(address => uint256) private insureeBalances;
     // Unique insurance keys for recall
@@ -269,9 +269,9 @@ contract FlightSuretyData {
     */   
     function buyFlightInsurance (bytes32 _flight, address _insuree) external payable requireIsOperational requireAuthorizedCaller {
         Insurance memory newInsurance = Insurance({customer: _insuree, funds: msg.value, isPaid: false});
-        flightInsurances[_flight].push(newInsurance);
         bytes32 flightKey = getFlightkeyByFlight(_flight);
         bytes32 insuranceKey = getUniqueKey(_insuree, _flight, 0);
+        flightInsurances[flightKey].push(insuranceKey);
         idToInsurance[insuranceKey] = newInsurance;
         insuranceKeys.push(insuranceKey);
         airlines[flights[flightKey].airline].funds.add(msg.value);
@@ -287,28 +287,37 @@ contract FlightSuretyData {
         return (insurance.customer, insurance.funds, insurance.isPaid, insuranceKey);
     }
 
+    function updateFlightStatus (uint8 _statusCode, bytes32 _flight) external requireIsOperational requireAuthorizedCaller {
+        bytes32 flightKey = getFlightkeyByFlight(_flight);
+        flights[flightKey].statusCode = _statusCode;
+    }
+
     /**
      *  @dev Credits payouts to insurees
     */
-    function creditInsurees
-                                (
-                                )
-                                external
-                                pure
-    {
+    function creditInsurees (bytes32 _flight) external requireIsOperational requireAuthorizedCaller {
+        bytes32 flightKey = getFlightkeyByFlight(_flight);
+        address flightAirline = flights[flightKey].airline;
+        for(uint8 p=0; p < flightInsurances[flightKey].length; p++) {
+            Insurance storage insurance = idToInsurance[flightInsurances[flightKey][p]];
+            if (insurance.isPaid == false) {
+                uint256 credit = insurance.funds.mul(3).div(2);
+                insurance.isPaid == true;
+                insureeBalances[insurance.customer] = insureeBalances[insurance.customer].add(credit);
+                airlines[flightAirline].funds.sub(credit);
+            }
+        }
     }
-    
 
     /**
      *  @dev Transfers eligible payout funds to insuree
      *
     */
-    function pay
-                            (
-                            )
-                            external
-                            pure
-    {
+    function payInsuree (address _insuree) external requireIsOperational requireAuthorizedCaller {
+        require(insureeBalances[_insuree] > 0, "This Insuree has no credit to withdraw.");
+        uint256 amount = insureeBalances[_insuree];
+        insureeBalances[_insuree] = 0;
+        address(_insuree).transfer(amount);
     }
 
 

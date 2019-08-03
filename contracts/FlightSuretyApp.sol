@@ -94,6 +94,11 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier isMaxOneEther() {
+        require(msg.value <= 1 ether, "You may only insure for up to 1 Ether");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -195,7 +200,7 @@ contract FlightSuretyApp {
         emit FlightRegistered(_flight);
     }
 
-    function buyFlightInsurance ( bytes32 _flight ) public payable requireIsOperational requireFlightExists( _flight ) {
+    function buyFlightInsurance ( bytes32 _flight ) public payable isMaxOneEther requireIsOperational requireFlightExists( _flight ) {
         flightSuretyData.buyFlightInsurance.value(msg.value)(_flight, msg.sender);
         emit FlightInsurancePurchased(_flight, msg.sender);
     }
@@ -211,9 +216,9 @@ contract FlightSuretyApp {
                                     uint256 timestamp,
                                     uint8 statusCode
                                 )
-                                internal
-                                pure
+                                private requireIsOperational
     {
+        
     }
 
 
