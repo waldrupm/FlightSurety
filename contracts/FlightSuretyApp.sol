@@ -41,6 +41,8 @@ contract FlightSuretyApp {
 
     event FlightRegistered(bytes32 flight);
 
+    event FlightInsurancePurchased(bytes32 flight, address insuree);
+
     //debugging
     // event InVoting(uint256 votesNumber);
 
@@ -88,7 +90,7 @@ contract FlightSuretyApp {
 
     modifier requireFlightExists(bytes32 flightNumber) {
         bool flightExists = flightSuretyData.checkFlightExists(flightNumber);
-        require(flightExists == false, "Flight already exists.");
+        require(flightExists == true, "Flight does not exist.");
         _;
     }
 
@@ -191,6 +193,11 @@ contract FlightSuretyApp {
         
         flightSuretyData.registerFlight(_airline, _time, _flight);
         emit FlightRegistered(_flight);
+    }
+
+    function buyFlightInsurance ( bytes32 _flight ) public payable requireIsOperational requireFlightExists( _flight ) {
+        flightSuretyData.buyFlightInsurance.value(msg.value)(_flight, msg.sender);
+        emit FlightInsurancePurchased(_flight, msg.sender);
     }
     
    /**

@@ -11,6 +11,9 @@ contract('Flight Surety Tests', async (accounts) => {
   let flightTwoName = web3.utils.utf8ToHex("Mike102");
   let flightThreeName = web3.utils.utf8ToHex("Mike103");
 
+  let one_eth = web3.utils.toWei("1", "ether");
+  let ten_eth = web3.utils.toWei("10", "ether");
+
   before('setup contract', async () => {
     config = await Test.Config(accounts);
     await config.flightSuretyData.authorizeCaller(config.flightSuretyApp.address);
@@ -96,7 +99,7 @@ contract('Flight Surety Tests', async (accounts) => {
   });
 
   it('(airline) can send funding and have it reflected in fund balance', async () => {
-      let ten_eth = web3.utils.toWei("10", "ether");
+
     try {
         await config.flightSuretyApp.fundRegisteredAirline({from: config.firstAirline, value: ten_eth});
     } catch(e) {
@@ -187,6 +190,21 @@ it('Can list all flights', async () => {
     }
     
     assert.equal(flightList.length, 3, "Flight list is not 3 as expected");
+  });
+
+  it('Can buy flight insurance for a flight', async () => {
+    let insuranceDetails;
+
+    try {
+        await config.flightSuretyApp.buyFlightInsurance(flightOneName, {from: config.firstInsuree, value: one_eth});
+        insuranceDetails = await config.flightSuretyData.getFlightInsuranceDetails(config.firstInsuree, flightOneName);
+        
+    } catch(e) {
+        console.log(e);
+    }
+    assert.equal(insuranceDetails['0'], config.firstInsuree, "Insuree is not correctly reflected when purchased");
+    assert.equal(insuranceDetails['1'].toString(), one_eth.toString(), "Insurance value is incorrect");
+    
   });
 
 });
