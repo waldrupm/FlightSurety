@@ -86,6 +86,12 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireFlightExists(bytes32 flightNumber) {
+        bool flightExists = flightSuretyData.checkFlightExists(flightNumber);
+        require(flightExists == false, "Flight already exists.");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
