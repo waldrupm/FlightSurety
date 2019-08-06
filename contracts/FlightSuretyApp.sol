@@ -82,6 +82,12 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireAirline()
+    {
+        require(flightSuretyData.isAirline(msg.sender), "You are not an airline");
+        _;
+    }
+
     modifier requireNewFlight(bytes32 flightNumber) {
         bool flightExists = flightSuretyData.checkFlightExists(flightNumber);
         require(flightExists == false, "Flight already exists.");
@@ -183,7 +189,7 @@ contract FlightSuretyApp {
     }
 
     // Fund an airline
-    function fundRegisteredAirline () public payable requireIsOperational {
+    function fundRegisteredAirline () public payable requireIsOperational requireAirline {
         flightSuretyData.fundAirline.value(msg.value)(msg.sender, msg.value);
         emit AirlineFunded(msg.sender);
     }
@@ -194,7 +200,7 @@ contract FlightSuretyApp {
     *
     */  
     // Frontend should pass _flight as web3.fromUtf8(_flight)
-    function registerFlight ( address _airline, uint256 _time, bytes32 _flight) public requireIsOperational requireAirlineRegAndFunded requireNewFlight(_flight) {
+    function registerFlight ( address _airline, uint256 _time, bytes32 _flight) public requireIsOperational requireAirlineRegAndFunded /*requireNewFlight(_flight)*/ {
         
         flightSuretyData.registerFlight(_airline, _time, _flight);
         emit FlightRegistered(_flight);
@@ -212,13 +218,18 @@ contract FlightSuretyApp {
     function processFlightStatus
                                 (
                                     address airline,
-                                    string memory flight,
+                                    bytes32 flight,
                                     uint256 timestamp,
-                                    uint8 statusCode
+                                    uint8 statusCode,
+                                    bytes32 _oracleResponseKey
                                 )
                                 private requireIsOperational
     {
-        
+        if (statusCode == STATUS_CODE_LATE_AIRLINE) {
+            flightSuretyData.creditInsurees(flight);
+        }
+            flightSuretyData.updateFlightStatus(statusCode, flight);
+            oracleResponses[_oracleResponseKey].isOpen = false;
     }
 
 
@@ -226,7 +237,7 @@ contract FlightSuretyApp {
     function fetchFlightStatus
                         (
                             address airline,
-                            string flight,
+                            bytes32 flight,
                             uint256 timestamp                            
                         )
                         external
@@ -278,14 +289,14 @@ contract FlightSuretyApp {
     mapping(bytes32 => ResponseInfo) private oracleResponses;
 
     // Event fired each time an oracle submits a response
-    event FlightStatusInfo(address airline, string flight, uint256 timestamp, uint8 status);
+    event FlightStatusInfo(address airline, bytes32 flight, uint256 timestamp, uint8 status);
 
-    event OracleReport(address airline, string flight, uint256 timestamp, uint8 status);
+    event OracleReport(address airline, bytes32 flight, uint256 timestamp, uint8 status);
 
     // Event fired when flight status request is submitted
     // Oracles track this and if they have a matching index
     // they fetch data and submit a response
-    event OracleRequest(uint8 index, address airline, string flight, uint256 timestamp);
+    event OracleRequest(uint8 index, address airline, bytes32 flight, uint256 timestamp);
 
 
     // Register an oracle with the contract
@@ -329,7 +340,7 @@ contract FlightSuretyApp {
                         (
                             uint8 index,
                             address airline,
-                            string flight,
+                            bytes32 flight,
                             uint256 timestamp,
                             uint8 statusCode
                         )
@@ -351,7 +362,7 @@ contract FlightSuretyApp {
             emit FlightStatusInfo(airline, flight, timestamp, statusCode);
 
             // Handle flight status as appropriate
-            processFlightStatus(airline, flight, timestamp, statusCode);
+            processFlightStatus(airline, flight, timestamp, statusCode, key);
         }
     }
 
@@ -359,7 +370,7 @@ contract FlightSuretyApp {
     function getFlightKey
                         (
                             address airline,
-                            string flight,
+                            bytes32 flight,
                             uint256 timestamp
                         )
                         pure

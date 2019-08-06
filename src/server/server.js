@@ -21,13 +21,8 @@ let oraclesMap = new Map();
 const setupOracles = async () => {
   //Get truffle accounts
   truffleAccounts = await getTruffleAccounts();
-  //Register Oracles to the last 20 of them and assign indexes
-  registerAllOracles();
-  //Fund first airline
-  fundFirstAirline();
-  //Register a flight or two
-
-  //Initiate a call for flight status for testing
+  // // Register Oracles to the last 20 of them and assign indexes
+  // await registerAllOracles();
 };
 
 const getTruffleAccounts = async () => {
@@ -44,7 +39,7 @@ const getTruffleAccounts = async () => {
 
 const registerOracle = (oracle) => {
   return new Promise ((resolve, reject) => {
-    flightSuretyApp.methods.registerOracle().send({from: oracle, value: web3.utils.toWei("1", "ether"), gas: 220000000000}, (e, res) => {
+    flightSuretyApp.methods.registerOracle().send({from: oracle, value: web3.utils.toWei("1", "ether"), gas: 3000000}, (e, res) => {
       if (e) {
         console.log(e);
         reject(e);
@@ -82,20 +77,6 @@ const getIndexes = (oracle) => {
         resolve(res);
       }
     });
-  });
-};
-
-const fundFirstAirline = () => {
-  return new Promise ( (resolve, reject) => {
-    flightSuretyApp.methods.fundRegisteredAirline().send({from: truffleAccounts[1], value: web3.utils.toWei("10", "ether"), 
-    (e, res) => {
-      if (e) {
-        console.log(e);
-        reject(e);
-      } else {
-        resolve(res);
-      }
-    }})
   });
 };
 

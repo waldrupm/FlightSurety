@@ -107,7 +107,7 @@ contract FlightSuretyData {
 
     modifier requireAuthorizedCaller()
     {
-        require(authorizedCallers[msg.sender] == 1, "You are not authorized for that.");
+        require(authorizedCallers[msg.sender] == 1, "You are definitely not authorized for that.");
         _;
     }
 
@@ -158,7 +158,7 @@ contract FlightSuretyData {
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
-    /* Airline Functinoality */
+    /* Airline Function1ality */
 
     function firstAirline( address _airlineAddress ) internal requireIsOperational {
         airlines[_airlineAddress] = Airline({funds: 0, isRegistered: true});

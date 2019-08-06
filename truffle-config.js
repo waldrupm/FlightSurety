@@ -7,6 +7,11 @@ module.exports = {
       host: "127.0.0.1",
       port: 7545,
       network_id: "*" // Match any network id
+    },
+    develop: {
+      accounts: 40,
+      defaultEtherBalance: 500,
+      blockTime: 0
     }
   },
   compilers: {
