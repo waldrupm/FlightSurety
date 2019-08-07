@@ -287,7 +287,7 @@ contract FlightSuretyData {
         return (insurance.customer, insurance.funds, insurance.isPaid, insuranceKey);
     }
 
-    function updateFlightStatus (uint8 _statusCode, bytes32 _flight) external requireIsOperational requireAuthorizedCaller {
+    function updateFlightStatus (uint8 _statusCode, bytes32 _flight) public requireIsOperational requireAuthorizedCaller {
         bytes32 flightKey = getFlightkeyByFlight(_flight);
         flights[flightKey].statusCode = _statusCode;
     }
@@ -295,7 +295,7 @@ contract FlightSuretyData {
     /**
      *  @dev Credits payouts to insurees
     */
-    function creditInsurees (bytes32 _flight) external requireIsOperational requireAuthorizedCaller {
+    function creditInsurees (bytes32 _flight) public requireIsOperational requireAuthorizedCaller {
         bytes32 flightKey = getFlightkeyByFlight(_flight);
         address flightAirline = flights[flightKey].airline;
         for(uint8 p=0; p < flightInsurances[flightKey].length; p++) {

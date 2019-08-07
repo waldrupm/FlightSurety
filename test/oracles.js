@@ -16,8 +16,7 @@ contract('Oracles', async (accounts) => {
   
   before('setup contract', async () => {
     config = await Test.Config(accounts);
-
-    
+    await config.flightSuretyData.authorizeCaller(config.flightSuretyApp.address);
   });
 
 
@@ -53,11 +52,11 @@ contract('Oracles', async (accounts) => {
     // loop through all the accounts and for each account, all its Indexes (indices?)
     // and submit a response. The contract will reject a submission if it was
     // not requested so while sub-optimal, it's a good test of that feature
-    let ctr = 1;
     for(let a=1; a<TEST_ORACLES_COUNT; a++) {
 
       // Get oracle information
       let oracleIndexes = await config.flightSuretyApp.getMyIndexes.call({ from: accounts[a]});
+      console.log(oracleIndexes);
       for(let idx=0;idx<3;idx++) {
 
         try {
@@ -65,13 +64,12 @@ contract('Oracles', async (accounts) => {
           // Submit a response...it will only be accepted if there is an Index match
           let tx = await config.flightSuretyApp.submitOracleResponse(oracleIndexes[idx], config.firstAirline, flight, timestamp, STATUS_CODE_ON_TIME, { from: accounts[a] });
           truffleAssert.eventEmitted(tx, 'OracleReport', (event) => {
-            console.log(event);
+            console.log("Success: ", event);
           });
         }
         catch(e) {
           // Enable this when debugging
-           console.log('\nError', idx, oracleIndexes[idx].toNumber(), flight, timestamp, ctr, e);
-           ctr++;
+           console.log('\nError', idx, oracleIndexes[idx].toNumber(), flight, timestamp, e.message);
         }
 
       }

@@ -230,6 +230,7 @@ contract FlightSuretyApp {
         }
             flightSuretyData.updateFlightStatus(statusCode, flight);
             oracleResponses[_oracleResponseKey].isOpen = false;
+            emit FlightStatusFinalized(flight, statusCode);
     }
 
 
@@ -293,11 +294,12 @@ contract FlightSuretyApp {
 
     event OracleReport(address airline, bytes32 flight, uint256 timestamp, uint8 status);
 
+    event FlightStatusFinalized(bytes32 flight, uint8 statusCode);
     // Event fired when flight status request is submitted
     // Oracles track this and if they have a matching index
     // they fetch data and submit a response
     event OracleRequest(uint8 index, address airline, bytes32 flight, uint256 timestamp);
-
+    event OracleRegistered(address oracle);
 
     // Register an oracle with the contract
     function registerOracle
@@ -315,6 +317,7 @@ contract FlightSuretyApp {
                                         isRegistered: true,
                                         indexes: indexes
                                     });
+        emit OracleRegistered(msg.sender);
     }
 
     function getMyIndexes
