@@ -131,6 +131,54 @@ let App = {
         }
     },
 
+    buyFlightInsurance: async function() {
+        try {
+            let insuredFlight = App.purchaseInsuranceFlight;
+            let insuredAmount = App.purchaseInsuranceValue;
+
+            await App.contracts.AirlineApp.methods.buyFlightInsurance(App.web3.utils.utf8ToHex(insuredFlight).send{from: App.metamaskAccountID, value: App.web3.utils.toWei(purchaseInsuranceValue, "ether")});
+        } catch(e) {
+            console.log(e);
+        }
+
+    },
+
+    checkFlightStatus: async function() {
+        try{
+            let checkingFlight = App.checkFlightStatusFlightName;
+            await App.contracts.AirlineApp.methods.fetchFlightStatus(checkingFlight).send({from: App.metamaskAccountID});
+            App.addNotification({event: `Request for ${checkingFlight} was sent`});
+        } catch(e) {
+
+        }
+    },
+    
+    requestWithrdaw: async function() {
+        try{
+            let insuree = App.metamaskAccountID;
+            await App.contracts.AirlineApp.methods.withdrawInsureeCredit().send({from: insuree});
+            App.addNotification({event: "A withdraw request was made for your account address"});
+        } catch(e) {
+            console.log(e);
+        }
+    },
+
+    setOperationalStatus: async function() {
+        try{
+
+        } catch(e) {
+
+        }
+    },
+
+    authorizeCaller: async function() {
+        try{
+
+        } catch(e) {
+
+        }
+    },
+
     checkEvents: async function() {
         App.contracts.AirlineApp.events.allEvents({
             fromBlock: 0

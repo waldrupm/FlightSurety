@@ -313,11 +313,16 @@ contract FlightSuretyData {
      *  @dev Transfers eligible payout funds to insuree
      *
     */
-    function payInsuree (address _insuree) external requireIsOperational requireAuthorizedCaller {
+    function payInsuree (address _insuree) external requireIsOperational requireAuthorizedCaller returns (bool){
         require(insureeBalances[_insuree] > 0, "This Insuree has no credit to withdraw.");
         uint256 amount = insureeBalances[_insuree];
         insureeBalances[_insuree] = 0;
         address(_insuree).transfer(amount);
+        return true;
+    }
+
+    function getInsureeBalance (address _insuree) external requireIsOperational requireAuthorizedCaller returns (uint256) {
+        return insureeBalances[_insuree];
     }
 
 

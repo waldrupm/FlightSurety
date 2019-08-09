@@ -54,6 +54,8 @@ contract FlightSuretyApp {
     event OracleRequest(uint8 index, address airline, bytes32 flight, uint256 timestamp);
     event OracleRegistered(address oracle);
 
+    event InsureePaid(address insuree);
+
     //debugging
     // event InVoting(uint256 votesNumber);
 
@@ -108,6 +110,12 @@ contract FlightSuretyApp {
     modifier requireFlightExists(bytes32 flightNumber) {
         bool flightExists = flightSuretyData.checkFlightExists(flightNumber);
         require(flightExists == true, "Flight does not exist.");
+        _;
+    }
+    
+    modifier requireHasInsureeBalance(address _insuree) {
+        uint256 balance = flightSuretyData.getInsureeBalance(_insuree);
+        require(balance > 0, "You don't have a balance to withrdraw presently");
         _;
     }
 
@@ -248,27 +256,31 @@ contract FlightSuretyApp {
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus
                         (
-                            address airline,
-                            bytes32 flight,
-                            uint256 timestamp                            
+                            bytes32 _flight
                         )
                         external
     {
         uint8 index = getRandomIndex(msg.sender);
 
+        (airline, flight, timestamp,,) = flightSuretyData.getFlightInformation(_flight);
         // Generate a unique key for storing the request
-        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
+        bytes32 key = keccak256(abi.encodePacked(index, airline, _flight, timestamp));
         oracleResponses[key] = ResponseInfo({
                                                 requester: msg.sender,
                                                 isOpen: true
                                             });
 
-        emit OracleRequest(index, airline, flight, timestamp);
+        emit OracleRequest(index, airline, _flight, timestamp);
     }
 
     function getAllFlights () external view returns (bytes32[]) 
     {
         return flightSuretyData.getAllFlights();
+    }
+
+    function withrdrawInsureeCredit() external requireHasInsureeBalance(msg.sender) {
+        flightSuretyData.payInsuree(msg.sender);
+        emit InsureePaid(msg.sender);
     }
 
 
