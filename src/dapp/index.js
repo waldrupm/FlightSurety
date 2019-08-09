@@ -136,7 +136,7 @@ let App = {
             let insuredFlight = App.purchaseInsuranceFlight;
             let insuredAmount = App.purchaseInsuranceValue;
 
-            await App.contracts.AirlineApp.methods.buyFlightInsurance(App.web3.utils.utf8ToHex(insuredFlight).send{from: App.metamaskAccountID, value: App.web3.utils.toWei(purchaseInsuranceValue, "ether")});
+            await App.contracts.AirlineApp.methods.buyFlightInsurance(App.web3.utils.utf8ToHex(insuredFlight)).send({from: App.metamaskAccountID, value: App.web3.utils.toWei(App.purchaseInsuranceValue.toString(), "ether")});
         } catch(e) {
             console.log(e);
         }
@@ -146,10 +146,10 @@ let App = {
     checkFlightStatus: async function() {
         try{
             let checkingFlight = App.checkFlightStatusFlightName;
-            await App.contracts.AirlineApp.methods.fetchFlightStatus(checkingFlight).send({from: App.metamaskAccountID});
+            await App.contracts.AirlineApp.methods.fetchFlightStatus(App.web3.utils.utf8ToHex(checkingFlight)).send({from: App.metamaskAccountID});
             App.addNotification({event: `Request for ${checkingFlight} was sent`});
         } catch(e) {
-
+            console.log(e);
         }
     },
     

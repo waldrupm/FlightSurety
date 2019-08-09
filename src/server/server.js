@@ -94,6 +94,7 @@ const getIndexes = (oracle) => {
 
 const submitOracleResponses = async (event) => {
   let matchingOracles = getMatchingOracles(event.returnValues.index);
+  console.log(matchingOracles);
   matchingOracles.forEach(async(oracle) => {
     try {
       await submitOracleResponse(event.returnValues.index, event.returnValues.airline, event.returnValues.flight, event.returnValues.timestamp, oracle);

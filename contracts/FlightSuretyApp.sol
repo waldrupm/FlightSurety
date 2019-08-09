@@ -261,7 +261,9 @@ contract FlightSuretyApp {
                         external
     {
         uint8 index = getRandomIndex(msg.sender);
-
+        address airline;
+        bytes32 flight;
+        uint256 timestamp;
         (airline, flight, timestamp,,) = flightSuretyData.getFlightInformation(_flight);
         // Generate a unique key for storing the request
         bytes32 key = keccak256(abi.encodePacked(index, airline, _flight, timestamp));
