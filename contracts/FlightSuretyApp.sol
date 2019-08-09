@@ -42,6 +42,17 @@ contract FlightSuretyApp {
     event FlightRegistered(bytes32 flight);
 
     event FlightInsurancePurchased(bytes32 flight, address insuree);
+    // Event fired each time an oracle submits a response
+    event FlightStatusInfo(address airline, bytes32 flight, uint256 timestamp, uint8 status);
+
+    event OracleReport(address airline, bytes32 flight, uint256 timestamp, uint8 status);
+
+    event FlightStatusFinalized(bytes32 flight, uint8 statusCode);
+    // Event fired when flight status request is submitted
+    // Oracles track this and if they have a matching index
+    // they fetch data and submit a response
+    event OracleRequest(uint8 index, address airline, bytes32 flight, uint256 timestamp);
+    event OracleRegistered(address oracle);
 
     //debugging
     // event InVoting(uint256 votesNumber);
@@ -294,17 +305,7 @@ contract FlightSuretyApp {
     // Key = hash(index, flight, timestamp)
     mapping(bytes32 => ResponseInfo) private oracleResponses;
 
-    // Event fired each time an oracle submits a response
-    event FlightStatusInfo(address airline, bytes32 flight, uint256 timestamp, uint8 status);
-
-    event OracleReport(address airline, bytes32 flight, uint256 timestamp, uint8 status);
-
-    event FlightStatusFinalized(bytes32 flight, uint8 statusCode);
-    // Event fired when flight status request is submitted
-    // Oracles track this and if they have a matching index
-    // they fetch data and submit a response
-    event OracleRequest(uint8 index, address airline, bytes32 flight, uint256 timestamp);
-    event OracleRegistered(address oracle);
+    
 
     // Register an oracle with the contract
     function registerOracle

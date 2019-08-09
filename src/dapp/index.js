@@ -24,6 +24,7 @@ let App = {
         App.checkFlightStatusFlightName = $("#checkFlightStatusFlightName option:selected").text();
         App.operationalStatus_Status = $("#operationalStatus_Status option:selected").text();
         App.authorizeContractAddress = $("#authorizeContractAddress").val();
+        App.notificationContainer = $("#notificationContainer");
   
         // console log all values
         console.log(
@@ -86,11 +87,11 @@ let App = {
         console.log("Trying to get App json");
         $.getJSON(jsonAirlineApp, function(data) {
             console.log('data',data);
-            console.log("Should have given data");
             var AirlineAppArtifact = data;
             App.contracts.AirlineApp = new App.web3.eth.Contract(AirlineAppArtifact.abi, App.config.appAddress);
             
             App.fetchCurrentFlights();
+            App.checkEvents();
   
         });
         return App.bindEvents();
@@ -104,13 +105,63 @@ let App = {
         let flights = await App.contracts.AirlineApp.methods.getAllFlights().call();
             let flightNames = [];
             flights.forEach( flight => {
-                console.log(flight);
+                console.log(App.web3.utils.hexToUtf8(flight));
                 flightNames.push(App.web3.utils.hexToUtf8(flight));
             });
             flightNames.forEach( name => {
                 $("#purchaseInsuranceFlight").append(`<option value="${name}">${name}</option>`);
                 $("#checkFlightStatusFlightName").append(`<option value="${name}">${name}</option>`);
             }); 
+    },
+
+    registerAirline: async function() {
+        try {
+            let newAirlineAddress = App.airlineRegistrationAddress;
+            await App.contracts.AirlineApp.methods.registerAirline(newAirlineAddress).send({from: App.metamaskAccountID});
+        } catch (e) {
+            console.log(e.message);
+        }
+    },
+
+    fundAirline: async function() {
+        try {  
+            await App.contracts.AirlineApp.methods.fundRegisteredAirline().send({from: App.metamaskAccountID, value: this.web3.utils.toWei("10", "ether")});
+        } catch (e) {
+            console.log(e.message);
+        }
+    },
+
+    checkEvents: async function() {
+        App.contracts.AirlineApp.events.allEvents({
+            fromBlock: 0
+        })
+        .on('data', function(event) {
+            if(event.event == "OracleRegistered" || event.event == "OracleReport" || event.event == "FlightRegistered"){
+                return;
+            } else {
+                console.log("Handled Event Notification");
+                App.addNotification(event);
+            }
+        })
+        .on('error', console.error);
+    },
+
+    addNotification: function(event) {
+        let eventNotification = `<div class="notification is-success">
+            <button class="deleteable delete"></button>
+                ${event.event}
+            </div>`;
+        App.notificationContainer.append(eventNotification);
+        App.addDeletes();
+    },
+
+    addDeletes: function() {
+            (document.querySelectorAll('.deleteable') || []).forEach(($delete) => {
+                let $notification = $delete.parentNode;
+                $delete.addEventListener('click', () => {
+                $notification.parentNode.removeChild($notification);
+                });
+            });
     },
   
     handleButtonClick: async function(event) {

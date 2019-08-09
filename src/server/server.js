@@ -197,6 +197,14 @@ flightSuretyApp.events.OracleRegistered({
   console.log(`Oracles registered: ${event.returnValues.oracle}`);
 });
 
+flightSuretyApp.events.OracleReport({
+  fromBlock: 0
+}, function (error, event) {
+  if(error) console.log(error);
+  console.log(`Oracle responded to request for ${event.returnValues.flight} with: ${event.returnValues.status}`);
+});
+
+
 // TODO: Listen for other events for testing purposes
 
 const app = express();
