@@ -1,33 +1,224 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>FlightSurety - Insurance for flights</title>
+		<link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.0/css/bulma.min.css">
+		<script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+        <!-- <link rel="stylesheet" href="styles/debug.css"> -->
+        <style>
+          .has-background-darkGray {
+            background-color: #252525;
+          }
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>FlightSurety</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
+          .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          .hero-body {
+            padding: 1.5rem 1.5rem;
+          }
+          .no-pad-top {
+            padding-top: 0rem;
+          }
+          .pad-bottom {
+            padding-bottom: 1.5rem;
+          }
+        </style>
+	</head>
+	<body>
+        <!-- HERO SECTION -->
+        <section class="hero has-background-darkGray">
+            <div class="hero-body">
+                <div class="container">
+                    <figure class="image center">
+                        <img src="img/flightsurety-logo.png" style="max-width: 350px;">
+                    </figure>
+                </div>
+            </div>
+        </section>
 
-<body>
+        <!-- OPERATIONAL STATUS -->
+        <section class="section">
+          <div class="container">
+            <div class="columns">
+              <div class="column">
+                <div class="message is-success">
+                  <div class="message-header center is-size-4">Status: Operational</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="#">FlightSurety</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
-            aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </nav>
+        <!-- AIRLINE ACTIONS -->
+        <section class="section no-pad-top">
+            <div class="container">
+              <div class="columns">
+                <div class="column">
+                  <div class="message is-info">
+                    <div class="message-header is-size-5">Airline Operations</div>
+                    <div class="message-body">
+                      <div class="columns">
+                        <div class="column is-one-half">
+                          <p class="is-size-5 pad-bottom">Register Airline</p>
+                          <div class="field">
+                            <label for="airlineRegistrationAddress" class="label">Airline Address</label>
+                            <div class="field">
+                              <div class="control has-icons-left">
+                                <input type="text" name="airlineRegistrationAddress" id="airlineRegistrationAddress" class="input" placeholder="Ethereum Address">
+                                <span class="icon is-small is-left"><i class="fas fa-address-card"></i></span>
+                              </div>
+                            </div>
+                            <div class="field">
+                              <div class="control">
+                                <button class="button is-info" id="registerAirline" data-id="1">Register Airline</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="column is-one-half">
+                          <p class="is-size-5 pad-bottom center">Fund Airline(from Airline address)</p>
+                          <div class="field">
+                              <div class="control center">
+                                <button class="button is-info" id="fundAirline" data-id="2">Fund My Airline - 10 ETH</button>
+                              </div>
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
-    <main class="container">
+          <!-- PASSENGER ACTIONS -->
+        <section class="section no-pad-top">
+            <div class="container">
+              <div class="columns">
+                <div class="column">
+                  <div class="message is-info">
+                    <div class="message-header is-size-5">Passenger Operations</div>
+                    <div class="message-body">
+                      <div class="columns">
+                        <div class="column is-one-third">
+                          <p class="is-size-5 pad-bottom">Buy Flight Insurance</p>
+                          <div class="field">
+                            <label class="label" for="purchaseInsuranceFlight">Flight</label>
+                            <div class="control">
+                              <div class="select">
+                                <select id="purchaseInsuranceFlight">
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="field">
+                              <label for="purchaseInsuranceValue" class="label">Insurance Value - Up to 1 ETH</label>
+                              <div class="field">
+                                <div class="control has-icons-left">
+                                  <input type="text" name="purchaseInsuranceValue" id="purchaseInsuranceValue" class="input" placeholder="1">
+                                  <span class="icon is-small is-left"><i class="fab fa-ethereum"></i></span>
+                                </div>
+                              </div>
+                              <div class="field">
+                                <div class="control">
+                                  <button class="button is-info" id="purchaseInsurance" data-id="3">Purchase Insurance</button>
+                                </div>
+                              </div>
+                          </div>
+                        </div>
+                        <div class="column is-one-third">
+                          <p class="is-size-5">Check Flight status</p>
+                          <p class="pad-bottom">(to be credited for late flights)</p>
+                          <div class="field">
+                            <label class="label">Flight</label>
+                            <div class="control">
+                              <div class="select">
+                                <select id="checkFlightStatusFlightName">
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="field">
+                              <div class="control">
+                                <button class="button is-info" id="checkFlightStatus" data-id="4">Check Status</button>
+                              </div>
+                          </div>
+                        </div>
+                        <div class="column is-one-third">
+                          <p class="is-size-5 pad-bottom">Request Withdraw</p>
+                          <div class="field">
+                              <div class="control">
+                                <button class="button is-info" id="withdrawInsuranceCredit" data-id="5"><i class="fab fa-ethereum"></i>&nbsp;Withdraw Credit</button>
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
-        <div id="display-wrapper" class="top-20">
-        </div>
-        <div class="row top-20">
-            <label class="form">Flight</label> <input type="text" id="flight-number"> <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
-        </div>
-    </main>
+          <!-- ADMINISTRATION OPTIONS -->
+          <section class="section no-pad-top">
+            <div class="container">
+              <div class="columns">
+                <div class="column">
+                  <div class="message is-danger">
+                    <div class="message-header is-size-5">Administration Options</div>
+                    <div class="message-body">
+                      <div class="columns">
+                        <div class="column is-one-half">
+                          <p class="is-size-5 pad-bottom">Set Operational Status</p>
+                          <div class="field">
+                              <div class="control">
+                                <div class="select">
+                                  <select id="operationalStatus_Status">
+                                    <option>Operational</option>
+                                    <option>Deactivated</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                  <button class="button is-info" id="setOperationalStatus" data-id="6">Set Status</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-one-half">
+                          <p class="is-size-5 pad-bottom">Authorize Caller</p>
+                          <div class="field">
+                              <label for="authorizeContractAddress" class="label">App Contract Address</label>
+                              <div class="field">
+                                <div class="control has-icons-left">
+                                  <input type="text" name="authorizeContractAddress" id="authorizeContractAddress" class="input" placeholder="Contract Address">
+                                  <span class="icon is-small is-left"><i class="far fa-file-alt"></i></span>
+                                </div>
+                              </div>
+                              <div class="field">
+                                <div class="control">
+                                  <button class="button is-info" id="authorizeCaller" data-id="7">Authorize Contract</button>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
-</body>
-
+          <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+          <!-- <script src="truffle-contract.js"></script> -->
+          <!-- <script src="js/app.js"></script> -->
+	</body>
 </html>

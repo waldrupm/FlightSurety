@@ -213,7 +213,7 @@ contract FlightSuretyData {
 
 
     /* FLIGHTS FUNCTIONALITY */
-    function registerFlight (address _airline, uint256 _time, bytes32 _flight) external requireAuthorizedCaller requireIsOperational {
+    function registerFlight (address _airline, uint256 _time, bytes32 _flight) public requireAuthorizedCaller requireIsOperational {
         bytes32 flightKey = getUniqueKey(_airline, _flight, _time);
         flightKeys.push(flightKey);
         flights[flightKey] = Flight({

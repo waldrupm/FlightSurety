@@ -253,7 +253,12 @@ contract FlightSuretyApp {
                                             });
 
         emit OracleRequest(index, airline, flight, timestamp);
-    } 
+    }
+
+    function getAllFlights () external view returns (bytes32[]) 
+    {
+        return flightSuretyData.getAllFlights();
+    }
 
 
 // region ORACLE MANAGEMENT

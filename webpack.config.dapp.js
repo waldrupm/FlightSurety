@@ -40,7 +40,7 @@ module.exports = {
     extensions: [".js"]
   },
   devServer: {
-    contentBase: path.join(__dirname, "dapp"),
+    contentBase: [path.join(__dirname, "dapp"),  path.join(__dirname, "/build/contracts")],
     port: 8000,
     stats: "minimal"
   }

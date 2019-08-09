@@ -14,15 +14,24 @@ let flightSuretyData = new web3.eth.Contract(FlightSuretyData.abi, config.dataAd
 // State maintenance
 let truffleAccounts = [];
 const possibleStatus = [0, 10, 20, 30, 40, 50];
+let timestamp = 1143243321;
 let oraclesMap = new Map();
 
 
 // SETUP
 const setupOracles = async () => {
-  //Get truffle accounts
-  truffleAccounts = await getTruffleAccounts();
-  // // Register Oracles to the last 20 of them and assign indexes
-  await registerAllOracles();
+  try {
+    //Get truffle accounts
+    truffleAccounts = await getTruffleAccounts();
+    // Register Oracles to the last 20 of them and assign indexes
+    await registerAllOracles().then(console.log("Oracles Registered"));
+    await authorizeAppContract().then(console.log("App contract authorized"));
+  
+    await fundFirstAirline().then(console.log("Airline Funded"));
+    await setupThreeFlights().then(console.log("Flights are set up"));
+  } catch (e) {
+    console.log(e.message);
+  }
 };
 
 const getTruffleAccounts = async () => {
@@ -31,6 +40,7 @@ const getTruffleAccounts = async () => {
       if (e) {
         reject(error);
       } else {
+        // console.log(res);
         resolve(res);
       }
     });
@@ -52,13 +62,13 @@ const registerOracle = (oracle) => {
 
 const registerAllOracles = async () => {
   for (let a = 20; a < 40; a++) {
-    console.log("__________________________");
-    console.log(truffleAccounts[a]);
+    // console.log("__________________________");
+    // console.log(truffleAccounts[a]);
     await checkGasRequirement(truffleAccounts[a]);
     await registerOracle(truffleAccounts[a]);
     console.log("Oracle registered", a-19);
     let oracleIndexes = await getIndexes(truffleAccounts[a]);
-    console.log(oracleIndexes);
+    // console.log(oracleIndexes);
     oraclesMap.set(truffleAccounts[a], oracleIndexes);
     console.log("__________________________");
   }
@@ -66,7 +76,7 @@ const registerAllOracles = async () => {
 
 const checkGasRequirement = (oracle) => {
     flightSuretyApp.methods.registerOracle().estimateGas({from: oracle}).then(function(gasAmount) {
-      console.log(gasAmount);
+      // console.log(gasAmount);
     });
 };
 
@@ -122,6 +132,52 @@ const getMatchingOracles = async (_index) => {
     });
   }
   return oraclesWithIndex;
+};
+
+const setupThreeFlights = async () => {
+  await setupFlight("SolidAir155");
+  await setupFlight("SolidAir211");
+  await setupFlight("SolidAir333");
+};
+
+const setupFlight = (flight) => {
+  return new Promise ( (resolve, reject) => {
+    flightSuretyApp.methods.registerFlight(truffleAccounts[1], timestamp, web3.utils.fromAscii(flight)).send({from: truffleAccounts[1], gas: 5000000, gasPrice: 100000000000}, (e, res) => {
+      if (e) {
+        console.log(`In flight setup passing: ${truffleAccounts[1]}, ${timestamp}, and ${web3.utils.fromUtf8(flight)} - Error: ${e.message}`);
+        reject(e);
+      } else {
+        console.log("Registered flight: ", flight);
+        resolve(res);
+      }
+    })
+  });
+};
+
+const fundFirstAirline = () => {
+  return new Promise ( (resolve, reject) => {
+    flightSuretyApp.methods.fundRegisteredAirline().send({from: truffleAccounts[1], value: web3.utils.toWei("10", "ether"), gas: 100000}, (e, res) => {
+      if (e) {
+        console.log(e.message);
+        reject(e);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+};
+
+const authorizeAppContract = () => {
+  return new Promise ( (resolve, reject) => {
+    flightSuretyData.methods.authorizeCaller(config.appAddress).send({from: truffleAccounts[0], gas: 100000}, (e, res) => {
+      if(e) {
+        console.log(e.message);
+        reject(e);
+      } else {
+        resolve(res);
+      }
+    });
+  });
 };
 
 // Initiate Setup
