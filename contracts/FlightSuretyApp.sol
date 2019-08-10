@@ -391,7 +391,7 @@ contract FlightSuretyApp {
 
     function checkOpenOracleRequest ( uint8 index, address airline, bytes32 flight, uint256 timestamp) external view returns (bool) {
         bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
-        return oraclesResponses[key].isOpen;
+        return oracleResponses[key].isOpen;
     }
 
 
