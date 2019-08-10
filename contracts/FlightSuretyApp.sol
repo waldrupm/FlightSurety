@@ -280,7 +280,7 @@ contract FlightSuretyApp {
         return flightSuretyData.getAllFlights();
     }
 
-    function withrdrawInsureeCredit() external requireHasInsureeBalance(msg.sender) {
+    function withdrawInsureeCredit() external requireHasInsureeBalance(msg.sender) {
         flightSuretyData.payInsuree(msg.sender);
         emit InsureePaid(msg.sender);
     }
@@ -372,7 +372,7 @@ contract FlightSuretyApp {
         require((oracles[msg.sender].indexes[0] == index) || (oracles[msg.sender].indexes[1] == index) || (oracles[msg.sender].indexes[2] == index), "Index does not match oracle request");
 
 
-        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp)); 
+        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
         require(oracleResponses[key].isOpen, "Flight or timestamp do not match oracle request");
 
         oracleResponses[key].responses[statusCode].push(msg.sender);
@@ -387,6 +387,11 @@ contract FlightSuretyApp {
             // Handle flight status as appropriate
             processFlightStatus(airline, flight, timestamp, statusCode, key);
         }
+    }
+
+    function checkOpenOracleRequest ( uint8 index, address airline, bytes32 flight, uint256 timestamp) external view returns (bool) {
+        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
+        return oraclesResponses[key].isOpen;
     }
 
 

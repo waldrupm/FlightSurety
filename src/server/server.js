@@ -97,7 +97,13 @@ const submitOracleResponses = async (event) => {
   console.log(matchingOracles);
   matchingOracles.forEach(async(oracle) => {
     try {
-      await submitOracleResponse(event.returnValues.index, event.returnValues.airline, event.returnValues.flight, event.returnValues.timestamp, oracle);
+      console.log(event.returnValues);
+      if (await flightSuretyApp.methods.checkOpenOracleRequest) {
+        console.log("Oracle request is still open");
+        await submitOracleResponse(event.returnValues.index, event.returnValues.airline, event.returnValues.flight, event.returnValues.timestamp, oracle);
+      } else {
+        return;
+      }
     } catch(e) {
       console.log("Failed Oracle Response:" , e);
     }
@@ -120,14 +126,17 @@ const submitOracleResponse = async (_index, _airline, _flight, _timestamp, _orac
 };
 
 const generateStatusCode = () => {
-  return 10 * Math.floor(Math.random() * Math.floor(5));
+  // return 10 * Math.floor(Math.random() * Math.floor(5));
+  return 20;
 };
 
-const getMatchingOracles = async (_index) => {
+const getMatchingOracles = (_index) => {
   let oraclesWithIndex = [];
   for (let [address, indexes] of oraclesMap) {
+    console.log(address, indexes);
     indexes.forEach( index => {
-      if (index = _index) {
+      if (index == _index) {
+        console.log(address, "Matched index ", _index);
         oraclesWithIndex.push(address);
       }
     });

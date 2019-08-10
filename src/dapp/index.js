@@ -153,7 +153,7 @@ let App = {
         }
     },
     
-    requestWithrdaw: async function() {
+    requestWithdraw: async function() {
         try{
             let insuree = App.metamaskAccountID;
             await App.contracts.AirlineApp.methods.withdrawInsureeCredit().send({from: insuree});
