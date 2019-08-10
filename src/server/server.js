@@ -97,8 +97,8 @@ const submitOracleResponses = async (event) => {
   console.log(matchingOracles);
   matchingOracles.forEach(async(oracle) => {
     try {
-      console.log(event.returnValues);
-      if (await flightSuretyApp.methods.checkOpenOracleRequest) {
+      // console.log(event.returnValues);
+      if (await flightSuretyApp.methods.checkOpenOracleRequest(event.returnValues.index,  event.returnValues.airline, event.returnValues.flight, event.returnValues.timestamp).send({from: oracle, gas: 100000})) {
         console.log("Oracle request is still open");
         await submitOracleResponse(event.returnValues.index, event.returnValues.airline, event.returnValues.flight, event.returnValues.timestamp, oracle);
       } else {
