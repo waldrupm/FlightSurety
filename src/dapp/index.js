@@ -23,7 +23,6 @@ let App = {
         App.purchaseInsuranceValue = $("#purchaseInsuranceValue").val();
         App.checkFlightStatusFlightName = $("#checkFlightStatusFlightName option:selected").text();
         App.operationalStatus_Status = $("#operationalStatus_Status option:selected").text();
-        App.authorizeContractAddress = $("#authorizeContractAddress").val();
         App.notificationContainer = $("#notificationContainer");
   
         // console log all values
@@ -32,8 +31,7 @@ let App = {
             App.purchaseInsuranceFlight,
             App.purchaseInsuranceValue,
             App.checkFlightStatusFlightName,
-            App.operationalStatus_Status,
-            App.authorizeContractAddress
+            App.operationalStatus_Status
         );
     },
   
@@ -91,6 +89,7 @@ let App = {
             App.contracts.AirlineApp = new App.web3.eth.Contract(AirlineAppArtifact.abi, App.config.appAddress);
             
             App.fetchCurrentFlights();
+            App.getInitialContractStatus();
             App.checkEvents();
   
         });
@@ -165,18 +164,35 @@ let App = {
 
     setOperationalStatus: async function() {
         try{
-
+            let modeSelected = App.operationalStatus_Status;
+            let mode = (modeSelected == 'Operational');
+            await App.contracts.AirlineApp.methods.setOperationalStatus(mode).send({from: App.metamaskAccountID});
+            App.addNotification({event: 'Operational status change in progress'});
         } catch(e) {
-
+            console.log(e);
         }
     },
 
-    authorizeCaller: async function() {
-        try{
-
-        } catch(e) {
-
+    toggleOpStatusBanner: function(newMode) {
+        let opStatusBanner = $('#opStatusBanner');
+        if(newMode == true) {
+            opStatusBanner.removeClass('is-danger');
+            opStatusBanner.addClass('is-success');
+            $("#mode").text('Operational');
+        } else {
+            opStatusBanner.removeClass('is-success');
+            opStatusBanner.addClass('is-danger');
+            $("#mode").text('Deactivated');
         }
+    },
+    getInitialContractStatus: async function() {
+        try {
+            let initialStatus = await App.contracts.AirlineApp.methods.isOperational().call();
+            App.toggleOpStatusBanner(initialStatus);
+        } catch(e) {
+            console.log(e);
+        }
+        
     },
 
     checkEvents: async function() {
@@ -186,6 +202,10 @@ let App = {
         .on('data', function(event) {
             if(event.event == "OracleRegistered" || event.event == "OracleReport" || event.event == "FlightRegistered"){
                 return;
+            } else if (event.event == "OperationalStatusChange") {
+                console.log("Contract status changed");
+                App.addNotification({event: `Operational Status is now: ${event.returnValues.newStatus}`});
+                App.toggleOpStatusBanner(event.returnValues.newStatus);
             } else {
                 console.log("Handled Event Notification");
                 App.addNotification(event);

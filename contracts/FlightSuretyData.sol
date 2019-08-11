@@ -111,6 +111,12 @@ contract FlightSuretyData {
         _;
     }
 
+    modifier requireOwnerOrAuthorized()
+    {
+        require(msg.sender == contractOwner || authorizedCallers[msg.sender] == 1, "You are must be owner or authorized to do that");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
@@ -149,8 +155,9 @@ contract FlightSuretyData {
                                 bool mode
                             ) 
                             external
-                            requireContractOwner 
+                            requireOwnerOrAuthorized 
     {
+        require(mode != operational, "Status is already that");
         operational = mode;
     }
 
@@ -254,7 +261,7 @@ contract FlightSuretyData {
         return (flight.airline, flight.flight, flight.updatedTimestamp, flight.statusCode, flightKey);
     }
 
-    function getAllFlights () public view requireIsOperational returns (bytes32[] memory) {
+    function getAllFlights () public view returns (bytes32[] memory) {
         bytes32[] memory flightList = new bytes32[](flightKeys.length);
 
         for (uint f = 0; f < flightKeys.length; f++) {
@@ -321,7 +328,7 @@ contract FlightSuretyData {
         return true;
     }
 
-    function getInsureeBalance (address _insuree) external requireIsOperational requireAuthorizedCaller returns (uint256) {
+    function getInsureeBalance (address _insuree) external view requireIsOperational requireAuthorizedCaller returns (uint256) {
         return insureeBalances[_insuree];
     }
 

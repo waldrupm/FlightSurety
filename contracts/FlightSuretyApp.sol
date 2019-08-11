@@ -35,6 +35,8 @@ contract FlightSuretyApp {
     /**************************************************************************
     EVENTS
     ***************************************************************************/
+    event OperationalStatusChange(bool newStatus);
+
     event AirlineVotedFor(address votedFor, address airlineVoted);
     event AirlineRegistered(address airline);
     event AirlineFunded(address airline);
@@ -148,10 +150,16 @@ contract FlightSuretyApp {
 
     function isOperational() 
                             public 
-                            pure 
+                            view 
                             returns(bool) 
     {
-        return true;  // Modify to call data contract's status
+        return flightSuretyData.isOperational(); // Modify to call data contract's status
+    }
+
+    function setOperationalStatus(bool _mode) external requireContractOwner {
+        require(_mode != isOperational(), "Mode is already that");
+        flightSuretyData.setOperatingStatus(_mode);
+        emit OperationalStatusChange(_mode);
     }
 
     /********************************************************************************************/
@@ -236,9 +244,7 @@ contract FlightSuretyApp {
     */  
     function processFlightStatus
                                 (
-                                    address airline,
                                     bytes32 flight,
-                                    uint256 timestamp,
                                     uint8 statusCode,
                                     bytes32 _oracleResponseKey
                                 )
@@ -275,7 +281,7 @@ contract FlightSuretyApp {
         emit OracleRequest(index, airline, _flight, timestamp);
     }
 
-    function getAllFlights () external view returns (bytes32[]) 
+    function getAllFlights () external view returns (bytes32[])
     {
         return flightSuretyData.getAllFlights();
     }
@@ -385,13 +391,8 @@ contract FlightSuretyApp {
             emit FlightStatusInfo(airline, flight, timestamp, statusCode);
 
             // Handle flight status as appropriate
-            processFlightStatus(airline, flight, timestamp, statusCode, key);
+            processFlightStatus(flight, statusCode, key);
         }
-    }
-
-    function checkOpenOracleRequest ( uint8 index, address airline, bytes32 flight, uint256 timestamp) external view returns (bool) {
-        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
-        return oracleResponses[key].isOpen;
     }
 
 

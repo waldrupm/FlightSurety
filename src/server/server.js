@@ -16,6 +16,7 @@ let truffleAccounts = [];
 const possibleStatus = [0, 10, 20, 30, 40, 50];
 let timestamp = 1143243321;
 let oraclesMap = new Map();
+let flightStatusFinalized = false;
 
 
 // SETUP
@@ -95,11 +96,13 @@ const getIndexes = (oracle) => {
 const submitOracleResponses = async (event) => {
   let matchingOracles = getMatchingOracles(event.returnValues.index);
   console.log(matchingOracles);
+  let ctr = 1;
   matchingOracles.forEach(async(oracle) => {
     try {
       // console.log(event.returnValues);
-      if (await flightSuretyApp.methods.checkOpenOracleRequest(event.returnValues.index,  event.returnValues.airline, event.returnValues.flight, event.returnValues.timestamp).send({from: oracle, gas: 100000})) {
+      if (ctr < 4) {
         console.log("Oracle request is still open");
+        ctr++;
         await submitOracleResponse(event.returnValues.index, event.returnValues.airline, event.returnValues.flight, event.returnValues.timestamp, oracle);
       } else {
         return;
@@ -113,7 +116,7 @@ const submitOracleResponses = async (event) => {
 const submitOracleResponse = async (_index, _airline, _flight, _timestamp, _oracle) => {
   return new Promise ( (resolve, reject) => {
     let statusCode = generateStatusCode();
-    flightSuretyApp.methods.submitOracleResponse(_index, _airline, _flight, _timestamp, statusCode).send({from: _oracle, gas: 100000}, 
+    flightSuretyApp.methods.submitOracleResponse(_index, _airline, _flight, _timestamp, statusCode).send({from: _oracle, gas: 300000}, 
                                 (e, res) => {
                                   if(e) {
                                     console.log("Oracle response send failed", e);
