@@ -1,10 +1,8 @@
 # FlightSurety
 
-FlightSurety project completed for Udacity's Blockchain Developer Nanodegree.
+FlightSurety project completed for Udacity's Blockchain Developer Nanodegree. This project contains Smart Contract code in Solidity (using Truffle), tests (also using Truffle (Mocha / Chai / Truffle-assertions for events)), dApp (using HTML, CSS, Bulma CSS Framework, JS, a bit of JQuery) and server app.
 
 ## Install
-
-This repository contains Smart Contract code in Solidity (using Truffle), tests (also using Truffle (Mocha / Chai / Truffle-assertions for events)), dApp (using HTML, CSS, Bulma CSS Framework, JS, a bit of JQuery) and server app.
 
 To install, download or clone the repo, then:
 
