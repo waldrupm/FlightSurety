@@ -27,15 +27,17 @@ To view dapp:
 
 ## Develop Server (You will need at least 40 Ganache or local ETH accounts in order to setup the project properly. It currently makes use of 20 Oracles, using accounts 19-39 for that purpose.)
 
-`npm run server`
+`npm run build:server`
 `truffle test ./test/oracles.js`
 
 ## Deploy
+To deploy Dapp for op testing:
+`npm run dapp`
 
 To build dapp for prod:
 `npm run dapp:prod`
 
-Deploy the contents of the ./dapp folder
+Deploy the contents of the ./src/dapp folder
 
 ## Important notes
 If there is a metamask RPC payload error about Nonces, metamask accounts need to be reset. This can be done in the Metamask extension by clicking on the account icon > Settings (at bottom) > Advanced > "Reset Account". This deletes account history local and fixes the nonce issue.
