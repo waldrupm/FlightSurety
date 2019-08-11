@@ -44,6 +44,8 @@ If there is a metamask RPC payload error about Nonces, metamask accounts need to
 
 The Bulma CSS framework CDN was used in this project. You will not get the full visual experience without being online during testing.
 
+![User functions](https://github.com/waldrupm/FlightSurety/raw/master/images/userFunctions.png)
+
 ## Airlines
 - Airlines can register other airlines (or vote for them if more than 4 airlines already exist) by entering the Airline's address in the address box and clicking "Register".
 - Airlines can fund themselves through the Dapp by clicking the "Fund Airline" button and sending the transaction
@@ -56,3 +58,5 @@ The Bulma CSS framework CDN was used in this project. You will not get the full 
 ## Administrators
 - Administrators can set the contract operational status by selecting the status they want from the dropdown and clicking Set Status. 
 - The new status will be reflected by an event, app lockdown (with the exception of views like getting the flight list), and the status banner at the top of the page. 
+
+![Admin functions](https://github.com/waldrupm/FlightSurety/raw/master/images/adminFunction.png)
